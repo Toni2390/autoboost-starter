@@ -1,12 +1,17 @@
 {
   "name": "autoboost-starter",
   "version": "1.0.0",
-  "description": "AutoBoost Shopee Web UI Starter",
+  "description": "Simple Shopee AutoBoost Server",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },
   "dependencies": {
-    "express": "^4.18.2"
+    "axios": "^1.6.8",
+    "express": "^4.18.4",
+    "dotenv": "^16.3.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
