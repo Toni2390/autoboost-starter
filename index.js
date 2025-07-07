@@ -2,35 +2,42 @@ const express = require('express');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// 🔑 Ambil data dari environment variable
-const partner_id = process.env['Test Partner_id'];
-const partner_key = process.env['Test API Partner Key'];
-const shop_id = process.env['Shop ID'];
-const redirect_url = process.env['REDIRECT_URL'];
-
-const crypto = require('crypto');
-const axios = require('axios');
-
 app.use(express.json());
 
+// Home
 app.get('/', (req, res) => {
   res.send('AutoBoost Shopee is running!');
 });
 
-// 🔐 Route untuk memulai login via Shopee OAuth
+// 🔥 Login endpoint
 app.get('/login', (req, res) => {
-  const timestamp = Math.floor(Date.now() / 1000);
-  const baseString = `${partner_id}${redirect_url}${timestamp}`;
-  const hmac = crypto.createHmac('sha256', partner_key);
-  const sign = hmac.update(baseString).digest('hex');
+  try {
+    const partner_id = process.env.TEST_PARTNER_ID;
+    const redirect_url = process.env.REDIRECT_URL;
+    const timestamp = Math.floor(Date.now() / 1000);
+    const partner_key = process.env.TEST_API_PARTNER_KEY;
 
-  const url = `https://partner.test-stable.shopeemobile.com/api/v2/shop/auth_partner?partner_id=${partner_id}&redirect=${redirect_url}&timestamp=${timestamp}&sign=${sign}`;
-  res.redirect(url);
+    const baseUrl = 'https://partner.test-stable.shopeemobile.com/api/v2/shop/auth_partner';
+
+    const crypto = require('crypto');
+    const stringToSign = `${partner_id}${redirect_url}${timestamp}`;
+    const sign = crypto
+      .createHmac('sha256', partner_key)
+      .update(stringToSign)
+      .digest('hex');
+
+    const fullUrl = `${baseUrl}?partner_id=${partner_id}&timestamp=${timestamp}&sign=${sign}&redirect=${redirect_url}`;
+
+    return res.redirect(fullUrl);
+  } catch (error) {
+    console.error('Error in /login:', error);
+    return res.status(500).send('Internal Server Error on /login');
+  }
 });
 
-// 🔁 Callback dari Shopee OAuth
+// Callback dari Shopee
 app.get('/callback', (req, res) => {
-  console.log('Shopee callback query:', req.query);  // tampilkan query param
+  console.log('Shopee callback query:', req.query);
   res.send('Authorization callback received!');
 });
 
