@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const crypto = require('crypto');
 const app = express();
@@ -18,8 +19,13 @@ app.get('/login', (req, res) => {
   res.redirect(authUrl);
 });
 
+// ✅ Cukup satu kali route /callback
 app.get('/callback', (req, res) => {
-  console.log('Shopee callback:', req.query); // token, shop_id, dll
+  const { code, shop_id } = req.query;
+  if (!code || !shop_id) {
+    return res.status(400).send('Missing code or shop_id from Shopee.');
+  }
+  console.log('Shopee callback:', req.query);
   res.send('Authorization callback received!');
 });
 
